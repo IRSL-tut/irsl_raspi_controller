@@ -17,17 +17,6 @@ import scp
 # https://qiita.com/Angelan1720/items/a962e12fa81724b57526
 
 class RPIController:
-    # def __init__(self, hostname, username, password, robotname):
-        # """CPS Controller for raspberry pi
-        # Args:
-        #     hosname (str): hostname or IP address
-        #     username (str): rpi username 
-        #     password (str): rpi password
-        # """
-        # self.hostname = hostname
-        # self.username = username
-        # self.password = password
-        # self.robotname = robotname
     def __init__(self, robotname, ros_settings_path):
         """CPS Controller for raspberry pi
         Args:
@@ -51,12 +40,7 @@ class RPIController:
         self.sensor_stds = None
         self.dynaxmiel_stds = None
         self.source_command = 'source /home/{}/catkin_ws/devel/setup.bash'.format(self.username)
-        
-    # def set_rosenv(self, ros_setting_path):
-    #     with open(ros_setting_path, 'r') as f:
-    #         setting = yaml.safe_load(f)
-    #     print(setting)
-        
+               
     def connect_sensor(self, sensor_config_path):
         """connect sensors
         Args:
