@@ -1,0 +1,16 @@
+[Unit]
+Description=ROSCORE launcher
+After=network.target
+Requires=network.target
+
+[Service]
+User=irsl
+ExecStart=/usr/bin/screen -S roscore -ADm bash -l -c 'roscore'
+Type=simple
+Restart=always
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target
+
+

@@ -1,0 +1,19 @@
+dxl_read_period: 0.01
+dxl_write_period: 0.01
+publish_period: 0.01
+
+## wheel_controller_setting
+# mobile_robot_config:
+#   actuator_id:
+#   - 1
+#   - 2
+#   - 3
+#   - 4
+#   actuator_mounting_angle:
+#   - -1.57079632679
+#   - 0.0
+#   - 1.57079632679
+#   - 3.14159265359
+#   omni_mode: true
+#   radius_of_wheel: 0.024
+#   seperation_between_wheels: 0.16
