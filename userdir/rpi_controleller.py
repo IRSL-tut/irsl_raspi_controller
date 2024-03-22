@@ -55,11 +55,18 @@ class RPIController:
         self.sensor_stds = self.client.exec_command(command, get_pty=True)
         
     def disconnect_sensor(self):
+        """disconnect sensors
+        """
         if self.sensor_stds is not None:
             print('\x03', file=self.sensor_stds[0], end='')
             self.sensor_stds[0].close()
 
     def connect_dynamixel(self, dynamimxel_config, controller_config):
+        """connect dynamixels
+        Args:
+            dynamimxel_config (str): filepath to dynamixel configration 
+            controller_config (str): filepath to controller configration 
+        """
         put_dynamixel_config_path = '/tmp/config.yaml'
         put_controller_config_path = '/tmp/controller_config.yaml'
 
@@ -71,6 +78,8 @@ class RPIController:
         self.dynaxmiel_stds = self.client.exec_command(command, get_pty=True)
     
     def discnnet_dynamixel(self):
+        """disconnect dynamixels 
+        """
         if self.dynaxmiel_stds is not None:
             print('\x03', file=self.dynaxmiel_stds[0], end='')
             self.dynaxmiel_stds[0].close()
