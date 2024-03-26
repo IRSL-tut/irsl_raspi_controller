@@ -25,13 +25,18 @@
     sudo apt upgrade
     sudo apt install ubuntu-desktop libyaml-cpp-dev build-essential python3-smbus python-is-python3 screen python3-pip git vim libeigen3*
     ```
+- 本リポジトリのクローン
+    ```
+    cd ~
+    git clone https://github.com/IRSL-tut/cps_rpi.git
+    ```
 - ROS(noetic)インストール
     ```
     sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
     sudo apt install curl
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
     sudo apt update
-    sudo apt install ros-noetic-ros-base python3-rosdep
+    sudo apt install ros-noetic-ros-base python3-rosdep ros-noetic-usb-cam
     sudo rosdep init
     rosdep update
     ```
@@ -40,37 +45,25 @@
     pip3 install smbus2 imufusion
     pip3 install numpy --upgrade --ignore-install
     ```
-## roscoreの自動立ち上げ
-### bash_profileの作成
-```cp .bash_profile ~/.```
 
-or
+## bashの設定
 
+### ros_rcの作成
+ROBOT_IPを適宜raspbeery piのIPに書き換える
 ```
-DEV_IP=`ip addr show eth0 | grep -o 'inet [0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+' | grep -o [0-9].*`
-echo ${DEV_IP}
+source /opt/ros/noetic/setup.bash
+source ${HOME}/catkin_ws/devel/setup.bash
+
+export ROS_MASTER_URI='http://ROBOT_IP:11311/'
+export ROS_IP=ROBOT_IP
+export ROS_HOSTNAME=ROBOT_IP
 ```
 
-DEV_IPの中身を確認したのち以下を実行
-```
-echo "source ${HOME}/.bashrc" >> ~/.bash_profile
-echo "source /opt/ros/noetic/setup.bash" >> ~/.bash_profile
-echo "" >> ~/.bash_profile
-echo "export ROS_MASTER_URI='http://${DEV_IP}:11311/'" >> ~/.bash_profile
-echo "export ROS_IP=${DEV_IP}" >> ~/.bash_profile
-```
 ### bash_rcの作成
+
 ```
-echo "source /opt/ros/noetic/setup.bash" >> ~/.bashrc
+echo "source ~/.ros_rc" >> ~/.bashrc
 ```
-### roscore service fileのコピー
-```sudo cp roscore.service /etc/systemd/system/.```
-### サービススタート
-```sudo systemctl start roscore```
-### ステータスの確認
-```systemctl status roscore```
-### 自動起動設定
-```sudo systemctl enable roscore```
 
 ## cps関係ソフトウェア設定
 ```
@@ -79,9 +72,9 @@ git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
 git clone https://github.com/IRSL-tut/dynamixel-workbench.git
 git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
 git clone https://github.com/IRSL-tut/dynamixel_irsl.git
-git clone https://github.com/Hiroaki-Masuzawa/sensor_pi.git -b use_rosparam
+git clone https://github.com/IRSL-tut/sensor_pi.git
 cd ~/catkin_ws
-catkin_make
+catkin build
 ```
 
 ## choreonoidをインストール
@@ -109,6 +102,7 @@ src/choreonoid/misc/script/install-requisites-ubuntu-20.04.sh
 sudo apt install -q -qq -y python3-catkin-tools libreadline-dev ipython3
 rosdep update -y -q -r
 rosdep install -y -q -r --ignore-src --from-path src/choreonoid_ros src/irsl_choreonoid_ros
+sudo apt install ros-noetic-image-transport ros-noetic-angles ros-noetic-controller-manager ros-noetic-joint-limits-interface ros-noetic-transmission-interface
 ```
 ### コンパイル
 ```
@@ -119,5 +113,19 @@ catkin config --cmake-args -DBUILD_TEST=ON && catkin config --install && catkin 
 ```
 cd ${HOME}/catkin_ws
 rm -rf devel build
-catkin_make
+catkin build
 ```
+
+## supervisorの追加
+### supervisorのインストール
+```
+sudo apt install supervisor
+```
+### supervisorの設定
+```
+sudo cp supervisord.conf /etc/supervisor/supervisord.conf
+sudo cp exec_robot.conf /etc/supervisor/conf.d/.
+```
+
+### supervisorのコマンド起動
+```sudo service supervisor start```
