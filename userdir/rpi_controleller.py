@@ -42,12 +42,17 @@ class RPIController:
         self.client.connect(hostname=self.hostname, port=22,
                             username=self.username, password=self.password)
 
-        self.ssh_stds = {}
         self.source_command = 'source /home/{}/.ros_rc && source /home/{}/catkin_ws/devel/setup.bash'.format(
             self.username, self.username)
+
+        # for ssh 
+        self.ssh_stds = {}
+        
+        # for supervisor
         self.sv_server = None
         self.sv_service_name = 'run_robot'
 
+    # for supervisor
     def send_settings(self, use_actuator=True, use_sensor=True, use_camera=False, sensor_config_path=None, dynamimxel_config=None, controller_config=None, send_files=[]):
         """send configuration files
         Args:
@@ -60,8 +65,6 @@ class RPIController:
             send_files   (list of str) : send file list
         """
         date_string = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        # dist_dir = '/tmp/{}'.format(date_string)
-        # latest_dir = '/tmp/latest_settings'
         dist_dir = '/home/{}/cps_settings/{}'.format(
             self.username, date_string)
         latest_dir = '/home/{}/cps_settings/latest_settings'.format(
@@ -83,10 +86,8 @@ class RPIController:
         make_shell = 'echo -e \'trap \\"trap - SIGTERM && kill -- -\$\$\\" SIGINT SIGTERM EXIT\\n{} && roslaunch /home/{}/cps_rpi/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_config_path:={} use_dynamixel:={} use_sensor:={} use_camera:={} & \\nwait\\n\' > {}/run_robot.sh'.format(self.source_command, self.username,
                                                                                                                                                                                                                                                                         load_dynamixel_config_path, load_controller_config_path,
                                                                                                                                                                                                                                                                         self.robotname, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str, dist_dir)
-        # print(make_shell)
         command = 'bash -lc "mkdir -p {} && rm -f {} && ln -s {} {} && {}"'.format(
             dist_dir, latest_dir, dist_dir, latest_dir, make_shell)
-        # print(command)
         self.ssh_stds["operation"] = self.client.exec_command(
             command, get_pty=True)
         time.sleep(2)
@@ -114,6 +115,7 @@ class RPIController:
         """
         self.sv_server.supervisor.stopProcess(self.sv_service_name, True)
 
+    # via ssh method
     def connect_sensor(self, sensor_config_path):
         """connect sensors
         Args:
@@ -181,12 +183,15 @@ class RPIController:
         """
         return self.get_stdout(self.ssh_stds["dynamixel"][1])
 
+    # destructor
     def __del__(self):
+        # for ssh 
         for key, stds in self.ssh_stds.items():
             if not stds[0].channel.closed:
                 print('\x03', file=stds[0], end='')
                 stds[0].close()
         self.client.close()
+        # for suppervisor
         if self.sv_server is not None:
             self.stop_robot()
         time.sleep(1)
