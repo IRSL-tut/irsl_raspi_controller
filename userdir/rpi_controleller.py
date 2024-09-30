@@ -10,6 +10,8 @@ import datetime
 import paramiko
 import scp
 
+from xmlrpc.client import ServerProxy
+
 # 参考資料
 #
 # paramico
@@ -43,8 +45,20 @@ class RPIController:
         self.ssh_stds = {}
         self.source_command = 'source /home/{}/.ros_rc && source /home/{}/catkin_ws/devel/setup.bash'.format(
             self.username, self.username)
+        self.sv_server = None
+        self.sv_service_name = 'run_robot'
 
-    def send_settings(self, sensor_config_path=None, dynamimxel_config=None, controller_config=None, use_camera=False, send_files=[]):
+    def send_settings(self, use_actuator=True, use_sensor=True, use_camera=False, sensor_config_path=None, dynamimxel_config=None, controller_config=None, send_files=[]):
+        """send configuration files
+        Args:
+            use_actuator (bool) : true if use actuator 
+            use_sensor   (bool) : true if use sensor
+            use_camera   (bool) : true if use use camera
+            sensor_config_path   (str) : sensor_configuration file path
+            dynamimxel_config    (str) : dynamixel_configuration file path
+            controller_config    (str) : controller_configuration file path
+            send_files   (list of str) : send file list
+        """
         date_string = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
         # dist_dir = '/tmp/{}'.format(date_string)
         # latest_dir = '/tmp/latest_settings'
@@ -62,8 +76,8 @@ class RPIController:
         load_dynamixel_config_path = '{}/config.yaml'.format(latest_dir)
         load_controller_config_path = '{}/controller_config.yaml'.format(latest_dir)
         
-        use_dynamixel_str = 'true' if dynamimxel_config is not None and controller_config is not None else 'false'
-        use_sensor_str = 'true' if sensor_config_path is not None else 'false'
+        use_dynamixel_str = 'true' if use_actuator else 'false'
+        use_sensor_str = 'true' if use_sensor else 'false'
         use_camera_str = 'true' if use_camera else 'false'
 
         make_shell = 'echo -e \'trap \\"trap - SIGTERM && kill -- -\$\$\\" SIGINT SIGTERM EXIT\\n{} && roslaunch /home/{}/cps_rpi/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_config_path:={} use_dynamixel:={} use_sensor:={} use_camera:={} & \\nwait\\n\' > {}/run_robot.sh'.format(self.source_command, self.username,
@@ -85,6 +99,20 @@ class RPIController:
                 scpc.put(controller_config, put_controller_config_path)
             for sendfile in send_files:
                 scpc.put(sendfile, '{}/{}'.format(dist_dir, os.path.basename(sendfile)))
+                
+    def start_robot(self):
+        """start robot's program via Supervisor
+        """
+        self.sv_server = ServerProxy('http://{}:{}@{}:9999/RPC2'.format(self.username, self.password, self.hostname))
+        # if robot's program are alreday running, stop program before start.
+        if self.sv_server.supervisor.getProcessInfo(self.sv_service_name)['statename'] == 'RUNNING':
+            self.sv_server.supervisor.stopProcess(self.sv_service_name, True)    
+        self.sv_server.supervisor.startProcess(self.sv_service_name, True)
+
+    def stop_robot(self):
+        """stop robot's program via Supervisor
+        """
+        self.sv_server.supervisor.stopProcess(self.sv_service_name, True)
 
     def connect_sensor(self, sensor_config_path):
         """connect sensors
@@ -144,17 +172,21 @@ class RPIController:
         return ""
 
     def get_sensor_stdout(self):
+        """get sensor stdout
+        """
         return self.get_stdout(self.ssh_stds["sensor"][1])
 
     def get_dynaxmiel_stdout(self):
+        """get dynaxmiel stdout
+        """
         return self.get_stdout(self.ssh_stds["dynamixel"][1])
 
     def __del__(self):
-        # self.discnnet_dynamixel()
-        # self.disconnect_sensor()
         for key, stds in self.ssh_stds.items():
             if not stds[0].channel.closed:
                 print('\x03', file=stds[0], end='')
                 stds[0].close()
-                # print("{} is closed.".format(key))
         self.client.close()
+        if self.sv_server is not None:
+            self.stop_robot()
+        time.sleep(1)
