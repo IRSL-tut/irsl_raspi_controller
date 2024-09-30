@@ -44,8 +44,6 @@ class RPIController:
 
         self.source_command = 'source /home/{}/.ros_rc && source /home/{}/catkin_ws/devel/setup.bash'.format(
             self.username, self.username)
-
-        # for ssh 
         self.ssh_stds = {}
         
         # for supervisor
@@ -115,81 +113,8 @@ class RPIController:
         """
         self.sv_server.supervisor.stopProcess(self.sv_service_name, True)
 
-    # via ssh method
-    def connect_sensor(self, sensor_config_path):
-        """connect sensors
-        Args:
-            sensor_config (str): filepath to sensor configration 
-        """
-        put_sensor_config_path = "/tmp/all_sensor.yaml"
-
-        with scp.SCPClient(self.client.get_transport()) as scpc:
-            scpc.put(sensor_config_path, put_sensor_config_path)
-
-        command = 'bash -lc "{} && roslaunch sensor_pi sensor_pi.launch config_path:={} namespace:={}"'.format(
-            self.source_command, put_sensor_config_path, self.robotname)
-        self.ssh_stds["sensor"] = self.client.exec_command(
-            command, get_pty=True)
-
-    def disconnect_sensor(self):
-        """disconnect sensors
-        """
-        if "sensor" in self.ssh_stds:
-            print('\x03', file=self.ssh_stds["sensor"][0], end='')
-            self.ssh_stds["sensor"][0].close()
-            _ = self.ssh_stds.pop("sensor")
-
-    def connect_dynamixel(self, dynamimxel_config, controller_config):
-        """connect dynamixels
-        Args:
-            dynamimxel_config (str): filepath to dynamixel configration 
-            controller_config (str): filepath to controller configration 
-        """
-        put_dynamixel_config_path = '/tmp/config.yaml'
-        put_controller_config_path = '/tmp/controller_config.yaml'
-
-        with scp.SCPClient(self.client.get_transport()) as scpc:
-            scpc.put(dynamimxel_config, put_dynamixel_config_path)
-            scpc.put(controller_config, put_controller_config_path)
-
-        command = 'bash -lc "{} && roslaunch dynamixel_irsl controllers.launch dynamixel_settings:={} controller_settings:={} namespace:={}"'.format(
-            self.source_command, put_dynamixel_config_path, put_controller_config_path, self.robotname)
-        self.ssh_stds["dynamixel"] = self.client.exec_command(
-            command, get_pty=True)
-
-    def discnnet_dynamixel(self):
-        """disconnect dynamixels 
-        """
-        if "dynamixel" in self.ssh_stds:
-            print('\x03', file=self.ssh_stds["dynamixel"][0], end='')
-            self.ssh_stds["dynamixel"][0].close()
-            _ = self.ssh_stds.pop("dynamixel")
-
-    def get_stdout(self, stdout):
-        if not stdout.channel.exit_status_ready():
-            if stdout.channel.recv_ready():
-                rl, wl, xl = select.select([stdout.channel], [], [], 0.0)
-                if len(rl) > 0:
-                    return stdout.channel.recv(2048).decode("utf-8")
-        return ""
-
-    def get_sensor_stdout(self):
-        """get sensor stdout
-        """
-        return self.get_stdout(self.ssh_stds["sensor"][1])
-
-    def get_dynaxmiel_stdout(self):
-        """get dynaxmiel stdout
-        """
-        return self.get_stdout(self.ssh_stds["dynamixel"][1])
-
     # destructor
     def __del__(self):
-        # for ssh 
-        for key, stds in self.ssh_stds.items():
-            if not stds[0].channel.closed:
-                print('\x03', file=stds[0], end='')
-                stds[0].close()
         self.client.close()
         # for suppervisor
         if self.sv_server is not None:
