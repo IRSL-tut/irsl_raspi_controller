@@ -130,3 +130,6 @@ CPS用の環境を作成する方法および簡単な使い方である．
         Return_Delay_Time: 0
         Operating_Mode: 1
    ```
+### サンプルコード
+[サンプルコード](userdir/sample_supervisor.ipynb)
+RPIControllerのオブジェクトを作成，`send_settigs()`でファイルを送信，`start_robot()`で動作する．
