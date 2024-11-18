@@ -1,5 +1,5 @@
 #
-robot_ip_addr: 'XXX.XXX.XXX.XXX'
-host_ip_addr: 'XXX.XXX.XXX.XXX'
-username: 'xxxx'
-password: 'xxxx'
+robot_ip_addr: 'XXX.XXX.XXX.XXX' ## ip address of the PC on the robot
+#host_ip_addr: 'YYY.YYY.YYY.YYY'
+# username: 'xxxx' ## default irsl
+# password: 'xxxx' ## default irsl
