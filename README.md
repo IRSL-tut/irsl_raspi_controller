@@ -1,17 +1,18 @@
-[こちら](https://github.com/IRSL-tut/cps_rpi) は新しいリポジトリです．
+[こちら](https://github.com/IRSL-tut/irsl_raspi_controller) は新しいリポジトリです．
 
 https://github.com/IRSL-tut/cps_rpi_docker が古いリポジトリになります．
 
 # CPS用Raspbberyセットアップおよび使用方法例
+
 ## 概要
-CPS用の環境を作成する方法および簡単な使い方である．
+CPS用の環境を Raspberry Pi 上に作成する方法、及び、簡単な使い方である．
 <!-- [cps_rpi_docker](https://github.com/IRSL-tut/cps_rpi_docker)では，
 実ロボット用の設定ファイルをリモートに配置し，dockerを使用して実行していたが，
 不便な点が多いためそれを解消するためのものである． -->
 
 ## 準備
-- [Raspberry piのセットアップ方法](build_rpi/build.md)
-- [センサ用ケーブル作成](sensor_cable/build.md)
+- [Raspberry piのセットアップ方法](documents/build_system/build_raspi.md)
+- [センサ用ケーブル作成](documents/sensor_cable/build.md)
 
 ## 使用方法
 以下操作はjupyter上で実施する

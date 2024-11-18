@@ -1,10 +1,16 @@
-必要物品
+# センサー系統の準備
+
+## 必要物品
+
 - [2 x 20 pin コネクタ](https://jp.misumi-ec.com/vona2/detail/222000486813/?HissuCode=PS-40SD-D4C2)
 - [コネクタ用コンタクト](https://jp.misumi-ec.com/vona2/detail/222000484057/?HissuCode=030-51307-001)
 - [レベルコンバータIC](https://ssci.to/2375)
-- 配線
 
-- 組み立て
+## ケーブル結線図
+
+TBD
+
+## ピンアサイン
     - 以下通りに配線を行う．
         | 2x20 pin コネクタ| レベルコンバータIC | Grove Connector|
         | ---- | ---- | ---- |

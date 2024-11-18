@@ -1,12 +1,14 @@
 # build手順
 
+Ubuntu 20.04 を Rspberry Pi にインストールして、
+dynamixelのコントロール、及び、センサーの読み込み(ROSへのパブリッシュ)をネイティブで行うための環境構築である。
+
 ## make rspberry pi image
 以下設定でイメージを作成
 - select RASPBERRYPI4
 - Other general-purpose OS
     - Ubuntu
         - Ubuntu Server 20.04.5 LTS (64-bit)
-
 
 次へで設定を編集するでuserとsshの編集を行い，書き込みを行う．
 - 一般
