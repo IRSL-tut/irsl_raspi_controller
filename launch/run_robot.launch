@@ -4,9 +4,9 @@
     <arg name="use_sensor"              default="true" />
     <arg name="use_camera"              default="true" />
 
-    <arg name="dynamixel_settings"      default="/userdir/dynamixel_config.yaml"/>
+    <arg name="dx_servo_settings"       default="/userdir/dynamixel_config.yaml"/>
     <arg name="use_cmd_vel"             default="true" />
-    <arg name="controller_settings"     default="/userdir/controller_config.yaml"/>
+    <arg name="dx_controller_settings"  default="/userdir/controller_config.yaml"/>
     <arg name="joint_trajectory_name"   default="~joint_controller/command" />
 
     <arg name="usb_port"                default="/dev/ttyUSB0"/>
