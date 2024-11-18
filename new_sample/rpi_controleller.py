@@ -75,7 +75,8 @@ class RPIController:
         put_sensor_config_path      = '{}/all_sensor.yaml'.format(dist_dir)
         put_dynamixel_config_path   = '{}/config.yaml'.format(dist_dir)
         put_controller_config_path  = '{}/controller_config.yaml'.format(dist_dir)
-
+        put_run_robot_path          = '{}/run_robot.sh'.format(dist_dir)
+        
         load_sensor_config_path     = '{}/all_sensor.yaml'.format(latest_dir)
         load_dynamixel_config_path  = '{}/config.yaml'.format(latest_dir)
         load_controller_config_path = '{}/controller_config.yaml'.format(latest_dir)
@@ -84,15 +85,34 @@ class RPIController:
         use_sensor_str = 'true' if use_sensor else 'false'
         use_camera_str = 'true' if use_camera else 'false'
 
-        make_shell = 'echo -e \'trap \\"trap - SIGTERM && kill -- -\$\$\\" SIGINT SIGTERM EXIT\\n{} && roslaunch /home/{}/cps_rpi/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_config_path:={} use_dynamixel:={} use_sensor:={} use_camera:={} & \\nwait\\n\' > {}/run_robot.sh'.format(self.source_command, self.username,
-                                                                                                                                                                                                                                                                        load_dynamixel_config_path, load_controller_config_path,
-                                                                                                                                                                                                                                                                        self.robotname, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str, dist_dir)
-        command = 'bash -lc "mkdir -p {} && rm -f {} && ln -s {} {} && {}"'.format(
-            dist_dir, latest_dir, dist_dir, latest_dir, make_shell)
+        #make_shell = 'echo -e \'trap \\"trap - SIGTERM && kill -- -\$\$\\" SIGINT SIGTERM EXIT\\n{} && roslaunch /home/{}/cps_rpi/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_config_path:={} use_dynamixel:={} use_sensor:={} use_camera:={} & \\nwait\\n\' > {}/run_robot.sh'.format(self.source_command, self.username, load_dynamixel_config_path, load_controller_config_path, self.robotname, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str, dist_dir)
+        #command = 'bash -lc "mkdir -p {} && rm -f {} && ln -s {} {} && {}"'.format(dist_dir, latest_dir, dist_dir, latest_dir, make_shell)
+        command = 'bash -lc "mkdir -p {} && rm -f {} && ln -s {} {}"'.format(dist_dir, latest_dir, dist_dir, latest_dir)
+        
+        shell_txt = '''
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+
+export ROS_IP={}
+export ROS_MASTER_URI="http://${{ROS_IP}}:11311/"
+export ROS_HOSTNAME=${{ROS_IP}}
+source /opt/ros/noetic/setup.bash
+source /home/{}/catkin_ws/devel/setup.bash
+
+roslaunch /home/{}/cps_rpi/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_config_path:={} use_dynamixel:={} use_sensor:={} use_camera:={} & 
+wait
+'''.format(self.hostname,
+           self.username,
+           self.username, load_dynamixel_config_path, load_controller_config_path,
+           self.robotname, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str)
+
+        with open('run_robot.sh', mode='w') as f: 
+            f.write(shell_txt)
+            
         self.ssh_stds["operation"] = self.client.exec_command(command, get_pty=True)
         ##
         time.sleep(2)
         with scp.SCPClient(self.client.get_transport()) as scpc:
+            scpc.put('run_robot.sh', put_run_robot_path)
             if sensor_config is not None:
                 scpc.put(sensor_config, put_sensor_config_path)
             if dynamixel_config is not None:
@@ -103,9 +123,9 @@ class RPIController:
                 scpc.put(sendfile, '{}/{}'.format(dist_dir, os.path.basename(sendfile)))
 
     def set_supervisor_proxy(self, host=None, port=9999, user=None, password=None):
-        host_ = if host is not None else self.hostname
-        user_ = if user is not None else self.username
-        pass_ = if password is not None else self.password
+        host_ = host if host is not None else self.hostname
+        user_ = user if user is not None else self.username
+        pass_ = password if password is not None else self.password
         self.sv_server = ServerProxy('http://{}:{}@{}:{}/RPC2'.format(user_, pass_, host_, port))
 
     def start_robot(self, **kwargs):
@@ -134,7 +154,7 @@ class RPIController:
         #    self.stop_robot()
         time.sleep(1)
 
-if __name__ is '__main__':
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='setting robot controller')
     ## settings
     parser.add_argument('-n', '--namespace', help='', default='AssembleRobot')
