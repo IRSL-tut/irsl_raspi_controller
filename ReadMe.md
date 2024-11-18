@@ -1,9 +1,6 @@
-こちらは新しいリポジトリです．
+[こちら](https://github.com/IRSL-tut/cps_rpi) は新しいリポジトリです．
 
-[こちら](https://github.com/IRSL-tut/cps_rpi)が新しいリポジトリになります．
-
-[こちら](https://github.com/IRSL-tut/cps_rpi_docker)が古いリポジトリになります．
-
+https://github.com/IRSL-tut/cps_rpi_docker が古いリポジトリになります．
 
 # CPS用Raspbberyセットアップおよび使用方法例
 ## 概要
