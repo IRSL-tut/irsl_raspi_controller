@@ -4,34 +4,34 @@
     <arg name="use_sensor"              default="true" />
     <arg name="use_camera"              default="true" />
 
-    <arg name="dynamixel_settings"      default="/userdir/dynamixel_config.yaml"/> 
+    <arg name="dynamixel_settings"      default="/userdir/dynamixel_config.yaml"/>
     <arg name="use_cmd_vel"             default="true" />
-    <arg name="controller_settings"     default="/userdir/controller_config.yaml" />
+    <arg name="controller_settings"     default="/userdir/controller_config.yaml"/>
     <arg name="joint_trajectory_name"   default="~joint_controller/command" />
 
     <arg name="usb_port"                default="/dev/ttyUSB0"/>
     <arg name="dxl_baud_rate"           default="1000000"/>
     <arg name="namespace"               default="fullset_robot"/>
 
-    <arg name="sensor_config_path"      default="/userdir/robot_sensor.json" />
+    <arg name="sensor_settings"         default="/userdir/robot_sensor.json" />
 
     <!-- include launch files -->
     <group if="$(arg use_dynamixel)">
-    <include file="$(find dynamixel_irsl)/launch/controllers.launch">
-        <arg name="usb_port"                value="$(arg usb_port)"/>
-        <arg name="dxl_baud_rate"           value="$(arg dxl_baud_rate)"/>
-        <arg name="namespace"               value="$(arg namespace)"/>
-        <arg name="dynamixel_settings" value="$(arg dynamixel_settings)"/>
-        <arg name="use_cmd_vel"        value="$(arg use_cmd_vel)"/>
-        <arg name="controller_settings" value="$(arg controller_settings)"/>
-        <arg name="joint_trajectory_name"   value="$(arg joint_trajectory_name)"/>
-    </include>
+      <include file="$(find dynamixel_irsl)/launch/controllers.launch">
+        <arg name="usb_port"              value="$(arg usb_port)"/>
+        <arg name="dxl_baud_rate"         value="$(arg dxl_baud_rate)"/>
+        <arg name="namespace"             value="$(arg namespace)"/>
+        <arg name="dynamixel_settings"    value="$(arg dynamixel_settings)"/>
+        <arg name="use_cmd_vel"           value="$(arg use_cmd_vel)"/>
+        <arg name="controller_settings"   value="$(arg controller_settings)"/>
+        <arg name="joint_trajectory_name" value="$(arg joint_trajectory_name)"/>
+      </include>
     </group>
     <group if="$(arg use_sensor)">
-    <include file="$(find sensor_pi)/launch/sensor_pi.launch" >
-        <arg name="config_path" value="$(arg sensor_config_path)" />
+      <include file="$(find sensor_pi)/launch/sensor_pi.launch" >
+        <arg name="config_path" value="$(arg sensor_settings)" />
         <arg name="namespace" value="$(arg namespace)" />
-    </include>
+      </include>
     </group>
     <group if="$(arg use_camera)">
       <node pkg="usb_cam" type="usb_cam_node" name="usb_cam">
