@@ -1,6 +1,11 @@
 robot_model:
   name: AssembleRobot
-  url: 'file:////userdir/test_robot.body'
+  url: 'file:////home/irsl/src/cps_rpi/samples/userdir/test_robot.body'
+
+# mobile_base:
+#   type: geometry_msgs/Twist
+#   topic: /AssembleRobot/cmd_vel
+#   baselink: Root
 
 joint_groups:
   -
@@ -19,13 +24,3 @@ devices:
     topic: /AssembleRobot/joint_controller/state
     class: JointTrajectoryState
     name: joint_trajectory_state
-  -
-    topic: /AssembleRobot/TOFsensor0/value
-    type: std_msgs/Float64
-    name: TOFsensor0
-    rate: 10
-  -
-    topic: /AssembleRobot/TOFsensor1/value
-    type: std_msgs/Float64
-    name: TOFsensor1
-    rate: 10

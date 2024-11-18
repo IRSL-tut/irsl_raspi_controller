@@ -1,0 +1,8 @@
+LINK_0:
+  ID: XX # input your motor id
+  Return_Delay_Time: 0
+  Operating_Mode: 3
+LINK_1:
+  ID: XX # input your motor id
+  Return_Delay_Time: 0
+  Operating_Mode: 3
