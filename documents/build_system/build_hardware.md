@@ -1,4 +1,4 @@
-# ハードウェア準備
+# Dynamixel ハードウェア準備
 
 ## 必要な物品
     - [Dynamixel contorller](https://www.besttechnology.co.jp/modules/onlineshop/index.php?fct=photo&p=291)

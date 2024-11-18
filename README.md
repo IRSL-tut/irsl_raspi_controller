@@ -12,13 +12,14 @@ CPS用の環境を Raspberry Pi 上に作成する方法、及び、簡単な使
 
 ## 準備
 - [Raspberry piのセットアップ方法](documents/build_system/build_raspi.md)
+- [Dynamixel ハードウェア準備](documents/build_system/build_hardware.md)
 - [センサ用ケーブル作成](documents/sensor_cable/build.md)
 
 ## 使用方法
 以下操作はjupyter上で実施する
 
 ### センサ用configの設定
-`robot_sensor.yaml`を自分の使用するセンサに合わせて書き換える．
+`sensor_setting.yaml`を自分の使用するセンサに合わせて書き換える．
 - (例1) TOFセンサ1つの場合
     ```
     I2CHubPublisher:
@@ -65,8 +66,8 @@ CPS用の環境を Raspberry Pi 上に作成する方法、及び、簡単な使
     ```
 
 ### モータ用configの設定
-`controller_config.yaml`と`dynamixel_config.yaml`を書き換える．
-1. controller_config.yaml
+`dx_controller_config.yaml`と`dx_servo_config.yaml`を書き換える．
+1. `dx_controller_config.yaml`
     - (例1) アーム型ロボットの場合
     ```
     ## controlelr settings
@@ -96,7 +97,7 @@ CPS用の環境を Raspberry Pi 上に作成する方法、及び、簡単な使
       radius_of_wheel: 0.024
       seperation_between_wheels: 0.16
     ```
-1. dynamixel_config.yaml
+1. `dx_servo_config.yaml`
    - (例1) アーム型ロボットの場合
     ```
     LINK_0:             # 該当するJointName
@@ -135,6 +136,9 @@ CPS用の環境を Raspberry Pi 上に作成する方法、及び、簡単な使
         Return_Delay_Time: 0
         Operating_Mode: 1
    ```
+
 ### サンプルコード
-[サンプルコード](userdir/sample_supervisor.ipynb)
+[サンプルコード(send_settings)](samples/ipynb/send_settings.ipynb)
+[サンプルコード(start_ri)](samples/ipynb/start_ri.ipynb)
+
 RPIControllerのオブジェクトを作成，`send_settigs()`でファイルを送信，`start_robot()`で動作する．
