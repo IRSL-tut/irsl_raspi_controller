@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>irsl_raspi_controller</name>
+  <version>0.0.0</version>
+  <description>irsl_raspi_controller</description>
+  <maintainer email="faculty@irsl.eiiris.tut.ac.jp"> IRSL at Toyohashi Tech </maintainer>
+  <license>MIT</license>
+  <author email="faculty@irsl.eiiris.tut.ac.jp"> IRSL at Toyohashi Tech </author>
+  <!--url type="website"></url-->
+  <url type="repository">https://github.com/IRSL-tut/irsl_raspi_controller</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <export>
+    <build_type>catkin</build_type>
+  </export>
+</package>
