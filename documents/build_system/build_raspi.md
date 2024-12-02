@@ -30,7 +30,7 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 - 本リポジトリのクローン
     ```
     cd ~
-    git clone https://github.com/IRSL-tut/cps_rpi.git
+    git clone https://github.com/IRSL-tut/irsl_raspi_controller.git
     ```
 - ROS(noetic)インストール
     ```
