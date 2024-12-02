@@ -38,7 +38,7 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
     sudo apt install curl
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
     sudo apt update
-    sudo apt install ros-noetic-ros-base python3-rosdep ros-noetic-usb-cam
+    sudo apt install ros-noetic-ros-base python3-rosdep ros-noetic-usb-cam python3-catkin-tools
     sudo rosdep init
     rosdep update
     ```
@@ -51,14 +51,15 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 ## bashの設定
 
 ### ros_rcの作成
-ROBOT_IPを適宜raspbeery piのIPに書き換える
+ROBOT_IPで指定しているIPアドレスを適宜raspbeery piのIPに書き換える
 ```
 source /opt/ros/noetic/setup.bash
 source ${HOME}/catkin_ws/devel/setup.bash
 
-export ROS_MASTER_URI='http://ROBOT_IP:11311/'
-export ROS_IP=ROBOT_IP
-export ROS_HOSTNAME=ROBOT_IP
+export ROBOT_IP=XXX.XXX.XXX.XXX
+export ROS_MASTER_URI='http://${ROBOT_IP}:11311/'
+export ROS_IP=${ROBOT_IP}
+export ROS_HOSTNAME=${ROBOT_IP}
 ```
 
 ### bash_rcの作成
