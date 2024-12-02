@@ -5,7 +5,7 @@
     - これは代替品でも構わない
 - Dynamixel 電源供給基盤部品
     - ユニバーサル基盤
-    - [JSTコネクタ](https://e-shop.robotis.co.jp/product.php?id=373)
+    - [JSTコネクタ](https://e-shop.robotis.co.jp/product.php?id=221)
         -購入先は一例
     - 電源用コネクタ
         - XT60を推奨
