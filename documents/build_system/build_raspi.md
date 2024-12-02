@@ -50,8 +50,8 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 
 ## bashの設定
 
-### ros_rcの作成
-ROBOT_IPで指定しているIPアドレスを適宜raspbeery piのIPに書き換える
+### .ros_rcの作成
+.ros_rcを作成し，ROBOT_IPで指定しているIPアドレスを適宜raspbeery piのIPに書き換える
 ```
 source /opt/ros/noetic/setup.bash
 source ${HOME}/catkin_ws/devel/setup.bash
