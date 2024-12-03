@@ -102,7 +102,7 @@ export ROS_HOSTNAME=${{ROS_IP}}
 source /opt/ros/noetic/setup.bash
 source /home/{}/catkin_ws/devel/setup.bash
 
-roslaunch /home/{}/cps_rpi/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_settings:={} use_dynamixel:={} use_sensor:={} use_camera:={} &
+roslaunch /home/{}/irsl_raspi_controller/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_settings:={} use_dynamixel:={} use_sensor:={} use_camera:={} &
 wait
 '''.format(self.hostname,
            self.username,
