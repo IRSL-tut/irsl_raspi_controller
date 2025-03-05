@@ -71,9 +71,9 @@ echo "source ~/.ros_rc" >> ~/.bashrc
 ## cps関係ソフトウェア設定
 ```
 mkdir -p ~/catkin_ws/src
-git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git
+git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b noetic
 git clone https://github.com/IRSL-tut/dynamixel-workbench.git
-git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git
+git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git -b noetic
 git clone https://github.com/IRSL-tut/dynamixel_irsl.git
 git clone https://github.com/IRSL-tut/sensor_pi.git
 cd ~/catkin_ws
