@@ -1,6 +1,6 @@
 # build手順
 
-Ubuntu 20.04 を Rspberry Pi にインストールして、
+Ubuntu 24.04 を Rspberry Pi にインストールして、
 dynamixelのコントロール、及び、センサーの読み込み(ROSへのパブリッシュ)をネイティブで行うための環境構築である。
 
 ## make rspberry pi image
