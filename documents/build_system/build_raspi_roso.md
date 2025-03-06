@@ -37,6 +37,7 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
         sudo apt upgrade -y
         sudo apt install -y git
         ```
+    - 再起動する
 - ros-oのインストール
     - [ここ](https://ros.packages.techfak.net/)に記載の通りインストールする．
         ```
@@ -216,12 +217,8 @@ git clone https://github.com/IRSL-tut/jupyter_plugin.git
 cd /choreonoid_ws
 sudo apt update -q -qq
 src/choreonoid/misc/script/install-requisites-ubuntu-24.04.sh
-sudo apt install -q -qq -y python3-catkin-tools libreadline-dev ipython3
-# エラーが出るので強制インストール
-sudo dpkg -i --force-overwrite /var/cache/apt/archives/python3-catkin-tools_0.9.4-5_all.deb
-sudo apt install -q -qq -y python3-catkin-tools libreadline-dev ipython3
+sudo apt install -q -qq -y libreadline-dev ipython3 libgmp-dev libmpfrc++-dev
 ```
-force over writeでいいのかは要検証．
 ```
 cd /choreonoid_ws
 rosdep update -y -q -r
@@ -233,8 +230,6 @@ source /opt/ros/${ROS_DISTRO}/setup.bash
 catkin config --cmake-args -DBUILD_TEST=ON
 catkin config --install 
 catkin build irsl_choreonoid irsl_choreonoid_ros cnoid_cgal irsl_sim_environments irsl_detection_msgs irsl_raspi_controller --no-status --no-notify -p 1
-## jupyterを使うときは環境変数込みでコンパイル
-# PATH=/opt/xeus3/bin:$PATH LD_LIBRARY_PATH=/opt/xeus3/lib:$LD_LIBRARY_PATH catkin build irsl_choreonoid irsl_choreonoid_ros cnoid_cgal irsl_sim_environments irsl_detection_msgs irsl_raspi_controller --no-status --no-notify -p 1
 ```
 
 ### choreonoid起動
@@ -246,7 +241,7 @@ LIBGL_ALWAYS_SOFTWARE=1 choreonoid
 ### 別ワークスペース再ビルド
 ```
 cd ${HOME}/catkin_ws
-rm -rf devel build
+catkin clean --yes
 catkin build
 ```
 
