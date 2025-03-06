@@ -8,7 +8,7 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 - select RASPBERRYPI5
 - Other general-purpose OS
     - Ubuntu
-        - Ubuntu Server 24.04.2 LTS (64-bit)
+        - Ubuntu Desktop 24.04.2 LTS (64-bit)
 
 <!-- 次へで設定を編集するでuserとsshの編集を行い，書き込みを行う．
 - 一般
@@ -18,9 +18,15 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
     - SSHを有効化する
         - パスワード認証を使う -->
 ## init settings
+イメージを書き込んだmicro sdを差し込んで起動
+- 言語はEnglishを選択
+- キーボードはJapanese-Japaneseを選択
+- wifiは適切なものを選択
+    - 有線LANを使う場合は設定しなくてもよい
+- TimezoneはTokyoを選択
 - user nameとpasswordを設定する
-    - 以下ではuser name:irsl, password:irslが前提
-
+    - 本システムではuser name:irsl, password:irslが前提
+- 設定後しばらくした後ログイン画面が出るのでログインし，続きを行う．
 
 
 ## ライブラリ等のinstall
@@ -28,25 +34,25 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
     - 以下コマンドを実行する
         ```
         sudo apt update
-        sudo apt upgrade
-        sudo apt install git
+        sudo apt upgrade -y
+        sudo apt install -y git
         ```
 - ros-oのインストール
     - [ここ](https://ros.packages.techfak.net/)に記載の通りインストールする．
         ```
-        sudo apt install curl
+        sudo apt install -y curl
         sudo curl -sSL https://ros.packages.techfak.net/gpg.key -o /etc/apt/keyrings/ros-one-keyring.gpg
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/ros1.list
         echo "# deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-one-keyring.gpg] https://ros.packages.techfak.net $(lsb_release -cs) main-dbg" | sudo tee -a /etc/apt/sources.list.d/ros1.list
         
         sudo apt update
-        sudo apt install python3-rosdep
+        sudo apt install -y python3-rosdep
         sudo rosdep init
 
         echo "yaml https://ros.packages.techfak.net/ros-one.yaml ubuntu" | sudo tee /etc/ros/rosdep/sources.list.d/1-ros-one.list
         rosdep update
 
-        sudo apt install ros-one-desktop
+        sudo apt install -y ros-one-desktop ros-one-usb-cam python3-catkin-tools
         ```
 
 ## ライブラリ等のinstall 
@@ -61,7 +67,7 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 - 本リポジトリのクローン
     ```
     cd ~
-    git clone https://github.com/IRSL-tut/irsl_raspi_controller.git
+    git clone --recursive https://github.com/IRSL-tut/irsl_raspi_controller.git
     ```
 <!-- - ROS(noetic)インストール
     ```
@@ -75,7 +81,7 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
     ``` -->
 - 必要ソフトウェアインストール(apt)
     ```
-    apt install ssh python3-pip
+    sudo apt install -y ssh python3-pip libyaml-cpp-dev
     ```
 
 - 必要ソフトウェアインストール(pip)
@@ -90,12 +96,14 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 ## cps関係ソフトウェア設定
 ```
 mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
 git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b noetic
 git clone https://github.com/IRSL-tut/dynamixel-workbench.git
 git clone https://github.com/ROBOTIS-GIT/dynamixel-workbench-msgs.git -b noetic
 git clone https://github.com/IRSL-tut/dynamixel_irsl.git
 git clone https://github.com/IRSL-tut/sensor_pi.git
 cd ~/catkin_ws
+source /opt/ros/one/setup.bash
 catkin build
 ```
 
@@ -104,8 +112,8 @@ catkin build
 ### .ros_rcの作成
 .ros_rcを作成し，ROBOT_IPで指定しているIPアドレスを適宜raspbeery piのIPに書き換える
 ```
-source /opt/ros/one/setup.bash
-source ${HOME}/catkin_ws/devel/setup.bash
+source /opt/ros/one/setup.bash >> ~/.ros_rc
+source ${HOME}/catkin_ws/devel/setup.bash >> ~/.ros_rc
 ```
 <!-- export ROBOT_IP=XXX.XXX.XXX.XXX
 export ROS_MASTER_URI='http://${ROBOT_IP}:11311/'
@@ -122,7 +130,7 @@ echo "source ~/.ros_rc" >> ~/.bashrc
 全部で２時間弱かかるので注意．
 ### 依存ツールインストール
 ```
-sudo apt install python3-vcstool
+sudo apt install -y python3-vcstool
 ```
 ### ソースダウンロード
 <!-- ```
@@ -174,7 +182,7 @@ vcs import --recursive < ../dot.rosinstall
 
 ### パッチを当てる
 ```
-cd /choreonoid_ws/src
+cd /choreonoid_ws
 patch -d src -p1 < src/irsl_choreonoid/config/choreonoid_closed_ik.patch 
 find /choreonoid_ws/src/prioritized_qp /choreonoid_ws/src/ik_solvers /choreonoid_ws/src/qp_solvers -name CMakeLists.txt -exec sed -i -e s@-std=c++[0-9][0-9]@-std=c++17@g {} \;
 ```
@@ -187,17 +195,21 @@ wget https://raw.githubusercontent.com/IRSL-tut/irsl_docker_irsl_system/refs/hea
 ```
 ## ext追加(必要なら)
 ```
+sudo mkdir /build_xeus
+sudo chmod 777 /build_xeus
+cd /build_xeus
+sudo apt install -q -qq -y wget cmake g++ git openssl pkg-config libzmq5-dev uuid-dev libssl-dev libsodium-dev lsb-release
+wget https://raw.githubusercontent.com/IRSL-tut/irsl_docker_xeus/refs/heads/main/local_build.sh
+sudo bash local_build.sh
+echo "" >> ~/.bashrc
+echo "export PATH=/opt/xeus3/bin:\$PATH" >> ~/.bashrc
+echo "export LD_LIBRARY_PATH=/opt/xeus3/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
+source ~/.bashrc
+```
+```
 cd /choreonoid_ws/src/choreonoid/ext
 git clone https://github.com/IRSL-tut/robot_assembler_plugin.git
 git clone https://github.com/IRSL-tut/jupyter_plugin.git
-```
-```
-sudo mkdir /build_xeus
-sudo chmod 777 /build_xeus
-sudo apt install -q -qq -y wget cmake g++ git openssl pkg-config libzmq5-dev uuid-dev libssl-dev libsodium-dev lsb-release
-wget https://raw.githubusercontent.com/IRSL-tut/irsl_docker_xeus/refs/heads/main/local_build.sh
-sed -i.bk s/v3.11.2/v3.11.3/g local_build.sh 
-sudo bash local_build.sh
 ```
 ### 必要ライブラリダウンロード
 ```
