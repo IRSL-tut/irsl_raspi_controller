@@ -35,6 +35,7 @@ class RPIController:
         self.username = setting['username'] if 'username' in setting else 'irsl'
         self.password = setting['password'] if 'password' in setting else 'irsl'
         self.namespace = namespace
+        self.rosmaster = setting['rosmaster'] if 'rosmaster' in setting else ''
 
         ### set at RobotInterface
         #os.environ['ROS_MASTER_URI'] = 'http://{}:{}'.format(setting['rosmaster_ip_addr'] if 'rosmaster_ip_addr' in setting else setting['robot_ip_addr'])
@@ -97,7 +98,7 @@ class RPIController:
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
 export ROS_IP={}
-export ROS_MASTER_URI="http://${{ROS_IP}}:11311/"
+export ROS_MASTER_URI="http://{}:11311/"
 export ROS_HOSTNAME=${{ROS_IP}}
 source /opt/ros/noetic/setup.bash
 source /home/{}/catkin_ws/devel/setup.bash
@@ -105,6 +106,7 @@ source /home/{}/catkin_ws/devel/setup.bash
 roslaunch /home/{}/irsl_raspi_controller/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_settings:={} use_dynamixel:={} use_sensor:={} use_camera:={} &
 wait
 '''.format(self.hostname,
+           self.rosmaster if self.rosmaster != '' else '${ROS_IP}',
            self.username,
            self.username, load_dynamixel_config_path, load_controller_config_path,
            self.namespace, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str)
