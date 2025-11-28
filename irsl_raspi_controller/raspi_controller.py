@@ -58,15 +58,26 @@ class RPIController:
         self.sv_service_name = 'run_robot'
 
     # for supervisor
-    def send_settings(self, use_actuator=True, use_sensor=True, use_camera=False, sensor_config=None, dynamixel_config=None, controller_config=None, send_files=[]):
+    def send_settings(self, 
+                      use_actuator=True, 
+                      use_sensor=True, 
+                      use_camera=False, 
+                      urdf_file=None, 
+                      joint_list=None,
+                      sensor_config=None, 
+                      dynamixel_config=None, 
+                      control_config=None, 
+                      send_files=[]):
         """send configuration files
         Args:
             use_actuator (bool) : true if use actuator
             use_sensor   (bool) : true if use sensor
             use_camera   (bool) : true if use use camera
+            urdf_file            (str) : robot model file path
+            joint_list           (str) : joint list file path
             sensor_config        (str) : sensor_configuration file path
-            dynamixel_config     (str) : dynamixel_configuration file path
-            controller_config    (str) : controller_configuration file path
+            dynamixel_config    (str) : dynamixel hardware configuration file path
+            control_config     (str) : dynamixel control configuration file path
             send_files   (list of str) : send file list
         """
         date_string = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -74,17 +85,23 @@ class RPIController:
         latest_dir = '/home/{}/cps_settings/latest_settings'.format(self.username)
 
         fname_sensor_config        = 'sensor_config.yaml'
-        fname_dx_servo_config      = 'dx_servo_config.yaml'
-        fname_dx_controller_config = 'dx_controller_config.yaml'
+        fname_dynamixel_config  = 'dynamixel_config.yaml'
+        fname_control_config    = 'ros_control.yaml'
+        fname_urdf = 'robot.urdf'
+        fname_jointlist = 'jointlist.yaml'
 
         put_sensor_config_path      = '{}/{}'.format(dist_dir, fname_sensor_config)
-        put_dynamixel_config_path   = '{}/{}'.format(dist_dir, fname_dx_servo_config)
-        put_controller_config_path  = '{}/{}'.format(dist_dir, fname_dx_controller_config)
+        put_dynamixel_config  = '{}/{}'.format(dist_dir, fname_dynamixel_config)
+        put_control_config   = '{}/{}'.format(dist_dir, fname_control_config)
+        put_urdf= '{}/{}'.format(dist_dir, fname_urdf)
+        put_jointlist = '{}/{}'.format(dist_dir, fname_jointlist)
         put_run_robot_path          = '{}/run_robot.sh'.format(dist_dir)
 
         load_sensor_config_path     = '{}/{}'.format(latest_dir, fname_sensor_config)
-        load_dynamixel_config_path  = '{}/{}'.format(latest_dir, fname_dx_servo_config)
-        load_controller_config_path = '{}/{}'.format(latest_dir, fname_dx_controller_config)
+        load_dynamixel_config   = '{}/{}'.format(latest_dir, fname_dynamixel_config)
+        load_control_config   = '{}/{}'.format(latest_dir, fname_control_config)
+        load_urdf = '{}/{}'.format(latest_dir, fname_urdf)
+        load_jointlist = '{}/{}'.format(latest_dir, fname_jointlist)
 
         use_dynamixel_str = 'true' if use_actuator else 'false'
         use_sensor_str = 'true' if use_sensor else 'false'
@@ -103,13 +120,14 @@ export ROS_HOSTNAME=${{ROS_IP}}
 source /opt/ros/noetic/setup.bash
 source /home/{}/catkin_ws/devel/setup.bash
 
-roslaunch /home/{}/irsl_raspi_controller/launch/run_robot.launch dynamixel_settings:={} controller_settings:={} namespace:={} sensor_settings:={} use_dynamixel:={} use_sensor:={} use_camera:={} &
+roslaunch /home/{}/irsl_raspi_controller/launch/run_robot_shm.launch control_config:={} dynamixel_config:={} robot_name:={} urdf_file:={} jointlist:={} sensor_settings:={} use_dynamixel:={} use_sensor:={} use_camera:={} &
 wait
 '''.format(self.hostname,
            self.rosmaster if self.rosmaster != '' else '${ROS_IP}',
            self.username,
-           self.username, load_dynamixel_config_path, load_controller_config_path,
-           self.namespace, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str)
+           self.username, 
+           load_control_config, load_dynamixel_config,
+           self.namespace, load_urdf, load_jointlist, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str)
 
         with open('run_robot.sh', mode='w') as f:
             f.write(shell_txt)
@@ -122,9 +140,13 @@ wait
             if sensor_config is not None:
                 scpc.put(sensor_config, put_sensor_config_path)
             if dynamixel_config is not None:
-                scpc.put(dynamixel_config, put_dynamixel_config_path)
-            if controller_config is not None:
-                scpc.put(controller_config, put_controller_config_path)
+                scpc.put(dynamixel_config, put_dynamixel_config)
+            if control_config is not None:
+                scpc.put(control_config, put_control_config)
+            if urdf_file is not None:
+                scpc.put(urdf_file, put_urdf)
+            if joint_list is not None:
+                scpc.put(joint_list, put_jointlist)
             for sendfile in send_files:
                 scpc.put(sendfile, '{}/{}'.format(dist_dir, os.path.basename(sendfile)))
 
@@ -168,7 +190,9 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--use_sensor', help='', type=bool, default=False)
     parser.add_argument('-c', '--use_camera', help='', type=bool, default=False)
     parser.add_argument('-D', '--dynamixel_config', help='')
-    parser.add_argument('-C', '--controller_config', help='')
+    parser.add_argument('-C', '--control_config', help='')
+    parser.add_argument('-U', '--urdf', help='')
+    parser.add_argument('-J', '--joint_list', help='')
     parser.add_argument('-S', '--sensor_config', help='')
     parser.add_argument('-I', '--robot_ip_addr', help='')
     ##
@@ -186,8 +210,10 @@ if __name__ == '__main__':
                       use_sensor   = args.use_sensor,
                       use_camera   = args.use_camera,
                       dynamixel_config   = args.dynamixel_config,
-                      controller_config  = args.controller_config,
-                      sensor_config_path = args.sensor_config,
+                      control_config  = args.control_config,
+                      urdf_file=args.urdf,
+                      joint_list=args.joint_list, 
+                      sensor_config = args.sensor_config,
                       send_files=[])
     if args.start_robot:
         rpc.start_robot()
