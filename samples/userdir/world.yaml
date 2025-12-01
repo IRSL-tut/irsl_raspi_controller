@@ -1,0 +1,52 @@
+robot:
+  model: /userdir/test_robot/test_robot.body
+  name: AssembleRobot
+  initial_coords:
+    pos:
+    - 0.0
+    - 0.0
+    - 0.0
+  initial_joint_angles:
+  - 0
+  - 0
+  fix: true
+  BodyROSItem:
+    name_space: AssembleRobot
+  ROSControlItem:
+    name_space: AssembleRobot
+world:
+  World:
+    name: MyWorld
+  Simulator:
+    type: AISTSimulator
+    name: AISTSim
+  GLVision: null
+  Camera:
+    lookEye:
+    - 0.0
+    - 3.0
+    - 1.7
+    lookUp:
+    - 0.0
+    - 0.0
+    - 1.0
+    lookAtCenter:
+    - 0.0
+    - 0.0
+    - 0.7
+  WorldROS: null
+  ROS:
+    generate:
+      robot: /userdir/test_robot/test_robot.body
+      name_space: AssembleRobot
+      controllers:
+      - name: joint_controller
+        type: position
+        joints:
+        - LINK_0
+        - LINK_1
+objects:
+- model: choreonoid://share/model/misc/floor.body
+  name: MyFloor
+  fix: true
+

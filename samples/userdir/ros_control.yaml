@@ -1,0 +1,11 @@
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+  joints:
+    - "LINK_0"
+    - "LINK_1"
+trajectory_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - "LINK_0"
+    - "LINK_1"

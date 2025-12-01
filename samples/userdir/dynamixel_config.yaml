@@ -1,0 +1,13 @@
+# This file is configlation for irsl_dynamixel_hardware_shm
+
+_default_joint: &default_joint
+  DynamixelSettings:
+    { Return_Delay_Time: 0, Operating_Mode: 3 }
+dynamixel_hardware_shm:
+  port_name: /dev/ttyUSB0
+  baud_rate: 1000000
+  joint:
+    #LINK_0:
+    - { ID: XX, <<: *default_joint}
+    #LINK_1:
+    - { ID: XX, <<: *default_joint}
