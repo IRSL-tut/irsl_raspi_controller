@@ -1,27 +1,27 @@
 <launch>
     <!-- args -->
     <arg name="use_dynamixel" default="true" />
-    <arg name="use_sensor" default="true" />
-    <arg name="use_camera" default="true" />
+    <arg name="use_sensor"    default="true" />
+    <arg name="use_camera"    default="true" />
 
-    <arg name="control_config" default="$(env PWD)/ros_control.yaml" />
+    <arg name="control_config"   default="$(env PWD)/ros_control.yaml" />
     <arg name="dynamixel_config" default="$(env PWD)/dynamixel_config.yaml" />
-    <arg name="controllers" default="joint_state_controller trajectory_controller" />
-    <arg name="robot_name" default="robotname" />
-    <arg name="urdf_file" default="robot.urdf" />
-    <arg name="jointlist" default="jointlist.yaml" />
+    <arg name="controllers"      default="joint_state_controller trajectory_controller" />
+    <arg name="robot_name"       default="robotname" />
+    <arg name="urdf_file"        default="robot.urdf" />
+    <arg name="jointlist"        default="jointlist.yaml" />
 
     <!-- -->
-    <arg name="hash" default="6666" />
+    <arg name="hash"    default="6666" />
     <arg name="shm_key" default="9999" />
-    <arg name="period" default="0.01" />
+    <arg name="period"  default="0.01" />
 
     <arg name="sensor_settings" default="/userdir/robot_sensor.json" />
 
     <group if="$(arg use_dynamixel)">
         <!-- Shm -->
         <node name="$(arg robot_name)" pkg="irsl_ros_control_shm" type="node_dx_shm" output="screen"
-            args="--hash=$(arg hash) --shm_key=$(arg shm_key) --config=$(arg dynamixel_config)">
+              args="--hash=$(arg hash) --shm_key=$(arg shm_key) --config=$(arg dynamixel_config)">
             <param name="period" value="$(arg period)" />
             <rosparam param="jointnames" command="load" file="$(arg jointlist)" />
         </node>
@@ -31,23 +31,25 @@
             <rosparam file="$(arg control_config)" command="load" />
             <!-- load the controllers -->
             <node name="robot_controller_spawner" pkg="controller_manager"
-                type="spawner" output="screen" respawn="true"
-                args="$(arg controllers)" />
+                  type="spawner" output="screen" respawn="true"
+                  args="$(arg controllers)" />
         </group>
 
         <param name="robot_description" textfile="$(arg urdf_file)" />
     </group>
+    <!-- Sensors -->
     <group if="$(arg use_sensor)">
         <include file="$(find sensor_pi)/launch/sensor_pi.launch">
             <arg name="config_path" value="$(arg sensor_settings)" />
-            <arg name="namespace" value="$(arg namespace)" />
+            <arg name="namespace" value="$(arg robot_name)" />
         </include>
     </group>
-    <group if="$(arg use_camera)">
-        <node pkg="usb_cam" type="usb_cam_node" name="usb_cam">
+    <!-- Camera -->
+    <group if="$(arg use_camera)" ns="$(arg robot_name)/Camera0">
+        <node pkg="usb_cam" type="usb_cam_node" name="color">
            <param name="pixel_format" value="mjpeg" />
            <param name="image_width"  value="640" />
            <param name="image_height" value="480" />
         </node>
     </group>
-</launch> 
+</launch>
