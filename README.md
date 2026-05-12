@@ -23,76 +23,7 @@ rosrun irsl_choreonoid_ros generate_settings.sh --body <yourbodyfile>.body
 ```
 
 ### モータ用configの設定
-`dx_controller_config.yaml`と`dx_servo_config.yaml`を書き換える．
-1. `dx_controller_config.yaml`
-    - (例1) アーム型ロボットの場合
-    ```
-    ## controlelr settings
-    dxl_read_period: 0.01
-    dxl_write_period: 0.01
-    publish_period: 0.01
-    ```
-    - (例2) 車輪型ロボットの場合
-    ```
-    ## controlelr settings
-    dxl_read_period: 0.01
-    dxl_write_period: 0.01
-    publish_period: 0.01
-    ## wheel controller settings
-    mobile_robot_config:
-      actuator_id: # 自分の使用するモータのIDを記載する
-      - X 
-      - Y
-      - Z
-      - W
-      actuator_mounting_angle: # 回転軸の方向
-      - -1.57079632679 
-      - 0.0
-      - 1.57079632679
-      - 3.14159265359
-      omni_mode: true
-      radius_of_wheel: 0.024
-      seperation_between_wheels: 0.16
-    ```
-1. `dx_servo_config.yaml`
-   - (例1) アーム型ロボットの場合
-    ```
-    LINK_0:             # 該当するJointName
-        ID: X           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 3
-    LINK_1:             # 該当するJointName
-        ID: Y           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 3
-    LINK_2:             # 該当するJointName
-        ID: Z           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 3
-    LINK_3:             # 該当するJointName
-        ID: W           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 3
-    ```
-   - (例2) 車輪型ロボットの場合
-   ```
-    WHEEL_0:            # 該当するJointName
-        ID: X           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 1
-    WHEEL_1:            # 該当するJointName
-        ID: Y           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 1
-    WHEEL_2:            # 該当するJointName
-        ID: Z           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 1
-    WHEEL_3:            # 該当するJointName
-        ID: W           # モータID
-        Return_Delay_Time: 0
-        Operating_Mode: 1
-   ```
+`dynamixel_config.yaml`のIDの項目をコメントにあるJoint名を参考に書き換える．
 
 ### センサ用configの設定
 `sensor_setting.yaml`を自分の使用するセンサに合わせて書き換える．
