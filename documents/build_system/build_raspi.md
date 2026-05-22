@@ -38,7 +38,7 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
     sudo apt install curl
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
     sudo apt update
-    sudo apt install ros-noetic-ros-base python3-rosdep ros-noetic-usb-cam python3-catkin-tools
+    sudo apt install ros-noetic-ros-base python3-rosdep ros-noetic-usb-cam python3-catkin-tools ros-noetic-image-transport 
     sudo rosdep init
     rosdep update
     ```
