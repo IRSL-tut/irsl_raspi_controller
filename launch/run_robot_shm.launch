@@ -51,9 +51,5 @@
            <param name="image_width"  value="640" />
            <param name="image_height" value="480" />
         </node>
-        <node pkg="image_transport"
-          type="republish"
-          name="image_republish"
-          args="raw in:=/$(arg robot_name)/Camera0/color/image_raw compressed out:=/$(arg robot_name)/Camera0/color/image" />
     </group>
 </launch>
