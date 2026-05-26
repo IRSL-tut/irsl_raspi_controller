@@ -67,6 +67,7 @@ class RPIController:
                       sensor_config=None,
                       dynamixel_config=None,
                       control_config=None,
+                      controllers=None,
                       send_files=[]):
         """send configuration files
         Args:
@@ -76,8 +77,9 @@ class RPIController:
             urdf_file            (str) : robot model file path
             joint_list           (str) : joint list file path
             sensor_config        (str) : sensor_configuration file path
-            dynamixel_config    (str) : dynamixel hardware configuration file path
-            control_config     (str) : dynamixel control configuration file path
+            dynamixel_config     (str) : dynamixel hardware configuration file path
+            control_config       (str) : dynamixel control configuration file path
+            controllers          (str) : controller list
             send_files   (list of str) : send file list
         """
         date_string = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -103,6 +105,7 @@ class RPIController:
         load_urdf               = '{}/{}'.format(latest_dir, fname_urdf)
         load_jointlist          = '{}/{}'.format(latest_dir, fname_jointlist)
 
+        controllers_str   = controllers if controllers is not None else '"joint_state_controller trajectory_controller"'
         use_dynamixel_str = 'true' if use_actuator else 'false'
         use_sensor_str    = 'true' if use_sensor else 'false'
         use_camera_str    = 'true' if use_camera else 'false'
@@ -126,6 +129,7 @@ roslaunch /home/{}/irsl_raspi_controller/launch/run_robot_shm.launch \
     robot_name:={} \
     urdf_file:={} \
     jointlist:={} \
+    controllers:={} \
     sensor_settings:={} \
     use_dynamixel:={} \
     use_sensor:={} \
@@ -137,7 +141,7 @@ wait
            self.username,
            self.username,
            load_control_config, load_dynamixel_config,
-           self.namespace, load_urdf, load_jointlist, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str)
+           self.namespace, load_urdf, load_jointlist, controllers_str, load_sensor_config_path, use_dynamixel_str, use_sensor_str, use_camera_str)
 
         with open('run_robot.sh', mode='w') as f:
             f.write(shell_txt)
