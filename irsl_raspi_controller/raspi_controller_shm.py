@@ -120,7 +120,11 @@ trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 export ROS_IP={}
 export ROS_MASTER_URI="http://{}:11311/"
 export ROS_HOSTNAME=${{ROS_IP}}
-source /opt/ros/noetic/setup.bash
+if [ -f "/opt/ros/one/setup.bash" ]; then
+    source /opt/ros/one/setup.bash
+elif [ -f "/opt/ros/noetic/setup.bash" ]; then
+    source /opt/ros/noetic/setup.bash
+fi
 source /home/{}/catkin_ws/devel/setup.bash
 
 roslaunch /home/{}/irsl_raspi_controller/launch/run_robot_shm.launch \
