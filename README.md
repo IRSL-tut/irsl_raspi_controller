@@ -72,6 +72,28 @@ rosrun irsl_choreonoid_ros generate_settings.sh --body <yourbodyfile>.body
             topic_name: color_value1/value
     ```
 
+### 組み立て手順
+1. 使用するモーターの初期位置合わせを行う．
+    1. dynamixel_config.yamlのIDを使用するモータのIDに書き換える．
+    1. 使用するモータ間をつなげる
+    1. USB-serial - dynamixelおよびdynamixel間の配線をする．
+    1. 電源を配線するときには電源 - 非常停止付きケーブル - 電源分岐ケーブルの順に配線する．
+    1. 非常停止ボタンを解除して電源を入れる（モータのLEDが光ることを確認する）
+    1. [本リポジトリ](https://github.com/IRSL-tut/irsl_raspi_controller) のsamples/ipynb/send_settings.ipynb　を使い設定を送信する．
+    1. http://XXX.XXX.XXX.XXX:9999 に(XXX.XXX.XXX.XXXはraspberry piのIPアドレス)アクセスしてrun_robotをstartさせる
+    1. [本リポジトリ](https://github.com/IRSL-tut/irsl_raspi_controller) のsamples/ipynb/start_ri.ipynbを使い０点にする．
+    1. 0点を出したら非常停止ボタンを押す
+    1. http://XXX.XXX.XXX.XXX:9999 に(XXX.XXX.XXX.XXXはraspberry piのIPアドレス)アクセスしてrun_robotをstopさせる
+1. ロボット組み立て
+    - 工具を使ってロボットを組み立てる．
+    - USB-serial - dynamixelおよびdynamixel間の配線忘れがちなので注意．
+1. 動作確認を行う
+    - 動作前に再度0点出しを一緒に行うとよい．	
+    - RI(Robot Interface)を使うのでシミュレーションで動かしているのであればそのまま動くはず．
+    - [CPS-lectureのRIに関するサンプル](https://github.com/IRSL-tut/CPS-lecture/blob/main/notebooks/cps_lecture_robot_interface.ipynb)だとMASTERとIPの引数を適切に指定しないと実機が動かないので注意．
+
+
+
 ### サンプルコード
 [サンプルコード(send_settings)](samples/ipynb/send_settings.ipynb)
 
