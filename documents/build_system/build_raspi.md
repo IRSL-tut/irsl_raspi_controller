@@ -4,6 +4,8 @@ Ubuntu 20.04 を Rspberry Pi にインストールして、
 dynamixelのコントロール、及び、センサーの読み込み(ROSへのパブリッシュ)をネイティブで行うための環境構築である。
 
 ## make rspberry pi image
+<!-- 昔はGUIからイメージを選択できたが今は不可能 -->
+<!--
 以下設定でイメージを作成
 - select RASPBERRYPI4
 - Other general-purpose OS
@@ -17,36 +19,89 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 - サービス
     - SSHを有効化する
         - パスワード認証を使う
+-->
+
+[ここ](https://old-releases.ubuntu.com/releases/20.04.0/)から`ubuntu-20.04.4-preinstalled-server-arm64+raspi.img.xz`をダウンロードして，
+Raspberry Pi Imagerの「Use custom」でイメージを書き込む．
+
+
+書き込み終了後，メディアがマウントされるがその時にuser-dataを書き換える．
+これにより初回起動時に以下が設定が実行され，再起動が行われる．
+- ユーザirslを追加(password:irsl)
+- irslをグループに追加
+- SSHを有効化
+
+```
+#cloud-config
+chpasswd:
+  expire: false
+  list:
+    - irsl:irsl
+ssh_pwauth: true
+groups:
+  - irsl
+users:
+  - name: irsl
+    gecos: IRSL
+    primary_group: irsl
+    groups: [adm, sudo]
+    shell: /bin/bash
+    lock_passwd: false
+write_files:
+  - path: /etc/default/crda
+    permissions: '0644'
+    content: |
+      REGDOMAIN=JP
+##Reboot after cloud-init completes
+power_state:
+  mode: reboot
+runcmd:
+ - gpasswd -a irsl dialout
+ - gpasswd -a irsl video
+```
+
+
 
 ## ライブラリ等のinstall 
 - 必要ソフトウェアインストール(apt)
     以下はIPがわかっていない場合は実機（CUI）で実施する．
+    また無線LANがつながっていない場合は有線LANを接続すること．
     終了後再起動(```sudo reboot```)することで，GUI操作が可能．
-    ```
+    ```bash
     sudo apt update
     sudo apt upgrade
     sudo apt install ubuntu-desktop libyaml-cpp-dev build-essential python3-smbus python-is-python3 screen python3-pip git vim libeigen3* wget
     ```
 - 本リポジトリのクローン
-    ```
+    ```bash
     cd ~
     git clone https://github.com/IRSL-tut/irsl_raspi_controller.git
     ```
 - ROS(noetic)インストール
-    ```
+    ```bash
     sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
     sudo apt install curl
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
     sudo apt update
-    sudo apt install ros-noetic-ros-base python3-rosdep ros-noetic-usb-cam python3-catkin-tools ros-noetic-image-transport 
+    sudo apt install ros-noetic-ros-base python3-rosdep ros-noetic-usb-cam python3-catkin-tools ros-noetic-image-transport ros-noetic-angles ros-noetic-controller-manager ros-noetic-joint-limits-interface ros-noetic-transmission-interface python3-vcstool ros-noetic-ros-control ros-noetic-ros-controllers
     sudo rosdep init
     rosdep update
     ```
 - 必要ソフトウェアインストール(pip)
-    ```
-    pip3 install smbus2 imufusion
+    ```bash
+    pip3 install smbus2
     pip3 install numpy --upgrade --ignore-install
     ```
+
+## IPアドレスの固定
+（必要に応じて）IPアドレスを固定する．
+固定後問題ないかを再起動した後に確認する．
+
+例：ターミナルで`ip a`とコマンドを実行するとインターフェイス毎のIPアドレスがわかる
+
+参考
+- https://gihyo.jp/admin/serial/01/ubuntu-recipe/0708
+    - GUIによる設定方法
 
 ## bashの設定
 
@@ -56,26 +111,28 @@ dynamixelのコントロール、及び、センサーの読み込み(ROSへの�
 source /opt/ros/noetic/setup.bash
 source ${HOME}/catkin_ws/devel/setup.bash
 
-export ROBOT_IP=XXX.XXX.XXX.XXX
-export ROS_MASTER_URI='http://${ROBOT_IP}:11311/'
+export ROBOT_IP=xxx.xxx.xxx.xxx
+export ROS_MASTER_URI="http://${ROBOT_IP}:11311/"
 export ROS_IP=${ROBOT_IP}
 export ROS_HOSTNAME=${ROBOT_IP}
 ```
 
 ### bash_rcの作成
 
-```
+```bash
 echo "source ~/.ros_rc" >> ~/.bashrc
 ```
 
 ## cps関係ソフトウェア設定
-```
+```bash
 mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
 git clone https://github.com/IRSL-tut/sensor_pi.git
 cd ~/catkin_ws
 wget https://raw.githubusercontent.com/IRSL-tut/irsl_ros_control_shm/refs/heads/main/test/install.noetic.vcs
 (cd src; vcs import --recursive < ../install.noetic.vcs)
 
+source /opt/ros/noetic/setup.bash
 catkin init
 catkin config --install
 catkin build irsl_dynamixel_hardware_shm irsl_ros_control_shm sensor_pi
@@ -86,11 +143,12 @@ catkin build irsl_dynamixel_hardware_shm irsl_ros_control_shm sensor_pi
 
 ## supervisorの追加
 ### supervisorのインストール
-```
+```bash
 sudo apt install supervisor
 ```
 ### supervisorの設定
-```
+```bash
+cd ~/irsl_raspi_controller/documents/build_system
 sudo cp supervisord.conf /etc/supervisor/supervisord.conf
 sudo cp exec_robot.conf /etc/supervisor/conf.d/.
 ```
@@ -124,7 +182,7 @@ src/choreonoid/misc/script/install-requisites-ubuntu-20.04.sh
 sudo apt install -q -qq -y python3-catkin-tools libreadline-dev ipython3
 rosdep update -y -q -r
 rosdep install -y -q -r --ignore-src --from-path src/choreonoid_ros src/irsl_choreonoid_ros
-sudo apt install ros-noetic-image-transport ros-noetic-angles ros-noetic-controller-manager ros-noetic-joint-limits-interface ros-noetic-transmission-interface
+sudo apt install ros-noetic-image-transport ros-noetic-angles ros-noetic-controller-manager ros-noetic-joint-limits-interface ros-noetic-transmission-interface ros-noetic-ros-control ros-noetic-ros-controllers
 ```
 ### コンパイル
 ```
